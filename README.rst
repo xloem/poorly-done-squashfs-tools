@@ -1,24 +1,14 @@
 
-###############################
-Python C\+\+ extension template
-###############################
+##########################
+poorly done squashfs-tools
+##########################
 
-**********************************************
-A template for a Python C\-API based extension
-**********************************************
-| **Why** would you want to have a **Python C\+\+\-extension** in the first place\?
-| The answer is quite simple\: **Performance**\.
-| Although you can achieve improved performance using `Cython <http://cython.org/>`_\, you can never beat **C\/C\+\+ level performance**\.
-| 
 
-About this template
-===================
-
-Introduction
-------------
-| This template provides a very basic Python extension written in C\/C\+\+\.
-| The extension module \"*template*\" contains a function \"*test*\" and a class \"*example\_class*\"\.
-| The \"*example\_class*\" has a single member \"*value*\" \(of type double \=\> float\)\,  and supports a lot of operations\.
-| It also shows how to import a module \(\"math\.pi\" in this case\)\.
-| 
-| *Work in progress*\. 
+poorly done squashfs-tools
+--------------------------
+| Package builds squashfs-tools as a python c extension and provides for calling the tools as functions.
+| The arguments to the functions are passed directly to the tools.
+| Due to use of static variables, only the first call works. Further calls crash.
+| This could be resolved by using CFFI and reloading the .so, by appropriately
+| rewriting the top-level functionality of the tools, or by integrating a python
+| interface or library into the codebase upstream.

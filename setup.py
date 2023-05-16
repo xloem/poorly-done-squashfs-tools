@@ -108,22 +108,22 @@ with open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
     long_description = long_description.replace("\r", "")
 
 setup(
-    name='Template',
+    name='poorly-done-squashfs-tools',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.0.1',
 
-    description='Python C-API Template',
+    #description='Python C-API Template',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/Zuzu-Typ/Python-C-extension-template',
+    url='https://github.com/xloem/poorly-done-squashfs-tools',
 
     # Author details
-    author='Zuzu_Typ',
-    author_email="zuzu.typ@gmail.com",
+    #author='Zuzu_Typ',
+    #author_email="zuzu.typ@gmail.com",
 
     # Choose your license
     license='Public Domain',
@@ -164,7 +164,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='template example',
+    #keywords='template example',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().

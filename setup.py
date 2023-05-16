@@ -170,7 +170,7 @@ setup(
     # simple. Or you can use find_packages().
     #packages=['squashfs_tools.py'],#{},
     #packages = ['squashfs_tools'],
-    py_modules = ['squashfs_tools'],
+    py_modules = ['poorly_done_squashfs_tools'],
 
     platforms = ["Windows", "Linux", "MacOS"],
     

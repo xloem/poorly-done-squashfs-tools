@@ -9,14 +9,96 @@ from setuptools import setup, find_packages, Extension
 # To use a consistent encoding
 from codecs import open
 from os import path
+from datetime import datetime
 
-module1 = Extension('template',
-                    sources = ['template.c'])
+HERE = path.abspath(path.dirname(__file__))
 
-here = path.abspath(path.dirname(__file__))
+SQUASHFS_PATH = path.join('squashfs-tools', 'squashfs-tools')
+
+CHANGES_PATH = path.join(HERE, 'squashfs-tools', 'CHANGES')
+RELEASE_VERSION, RELEASE_DATE, RELEASE_NEW = list(open(CHANGES_PATH))[2].split('\t')
+RELEASE_DATE = datetime.strptime(RELEASE_DATE, '%d %b %Y')
+
+SOURCES = ['swap.c', 'compressor.c', 'date.c']
+DEFINE_MACROS = {
+    '_FILE_OFFSET_BITS': '64',
+    '_LARGEFILE_SOURCE': '1',
+    '_GNU_SOURCE': '1',
+    'COMP_DEFAULT': '"zstd"',
+    'XATTR_SUPPORT': '1',
+    'XATTR_DEFAULT': '1',
+    'REPRODUCIBLE_DEFAULT': '1',
+    'VERSION': f'"{RELEASE_VERSION}"',
+    'DATE': f'"{RELEASE_DATE.strftime("%Y/%m/%d")}"',
+    'YEAR': f'"{RELEASE_DATE.year}"',
+    'main': 'squashfs_main',
+    'exit': 'squashfs_exit',
+    '__noreturn__': '',
+}
+EXTRA_COMPILE_ARGS = ['-O0', '-ggdb']
+LIBRARIES = ['pthread','m']
+EXTRA_LINK_ARGS = ['-ggdb']
+
+DEFINE_MACROS['GZIP_SUPPORT'] = '1'
+SOURCES += ['gzip_wrapper.c']
+LIBRARIES += ['z']
+
+DEFINE_MACROS['XZ_SUPPORT'] = '1'
+SOURCES += ['xz_wrapper.c']
+LIBRARIES += ['lzma']
+
+DEFINE_MACROS['LZO_SUPPORT'] = '1'
+SOURCES += ['lzo_wrapper.c']
+LIBRARIES += ['lzo2']
+
+DEFINE_MACROS['LZ4_SUPPORT'] = '1'
+SOURCES += ['lz4_wrapper.c']
+LIBRARIES += ['lz4']
+
+DEFINE_MACROS['ZSTD_SUPPORT'] = '1'
+SOURCES += ['zstd_wrapper.c']
+LIBRARIES += ['zstd']
+
+unsquashfs = Extension(
+    'unsquashfs',
+    include_dirs = [SQUASHFS_PATH],
+    define_macros = list(DEFINE_MACROS.items()),
+    extra_compile_args = EXTRA_COMPILE_ARGS,
+    libraries = LIBRARIES,
+    extra_link_args = EXTRA_LINK_ARGS,
+    sources = [
+        path.join(SQUASHFS_PATH, x)
+        for x in [
+            'unsquashfs.c', 'unsquash-1.c', 'unsquash-2.c', 'unsquash-3.c',
+        	'unsquash-4.c', 'unsquash-123.c', 'unsquash-34.c', 'unsquash-1234.c',
+            'unsquash-12.c', 'unsquashfs_info.c',
+            'read_xattrs.c', 'unsquashfs_xattr.c',
+            *SOURCES,
+        ]
+    ] + ['util.c', 'unsquashfs.c'],
+)
+
+mksquashfs = Extension(
+    'mksquashfs',
+    include_dirs = [SQUASHFS_PATH],
+    define_macros = list(DEFINE_MACROS.items()),
+    extra_compile_args = EXTRA_COMPILE_ARGS,
+    libraries = LIBRARIES,
+    extra_link_args = EXTRA_LINK_ARGS,
+    sources = [
+        path.join(SQUASHFS_PATH, x)
+        for x in [
+            'mksquashfs.c', 'read_fs.c', 'action.c', 'pseudo.c',
+        	'sort.c', 'progressbar.c', 'info.c', 'restore.c', 'process_fragments.c',
+	        'caches-queues-lists.c', 'reader.c', 'tar.c',
+            'xattr.c', 'read_xattrs.c', 'tar_xattr.c', 'pseudo_xattr.c',
+            *SOURCES,
+        ]
+    ] + ['util.c', 'mksquashfs.c'],
+)
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
     long_description_list = f.readlines()
 
     long_description = ""
@@ -86,13 +168,15 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages={},
+    #packages=['squashfs_tools.py'],#{},
+    #packages = ['squashfs_tools'],
+    py_modules = ['squashfs_tools'],
 
     platforms = ["Windows", "Linux", "MacOS"],
     
     include_package_data=True,
 
-    ext_modules = [module1],
+    ext_modules = [unsquashfs, mksquashfs],
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
